@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenClaw 安装指南 · Windows 完全教程</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=JetBrains+Mono:wght@400;600&family=DM+Sans:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0d0f14;
+      --surface: #13161e;
+      --surface2: #1a1e28;
+      --border: #252a38;
+      --accent: #e8c060;
+      --accent2: #5ec4ff;
+      --accent3: #ff7b5e;
+      --text: #d4d8e8;
+      --text-dim: #7a8099;
+      --text-bright: #eef0f8;
+      --claw: #ff6b35;
+      --mono: 'JetBrains Mono', monospace;
+      --serif: 'Noto Serif SC', serif;
+      --sans: 'DM Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.7;
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 9999;
+    }
+
+    /* ── SIDEBAR NAV ── */
+    .sidebar {
+      position: fixed; top: 0; left: 0;
+      width: 240px; height: 100vh;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      padding: 32px 0;
+      z-index: 100;
+      transition: transform .3s ease;
+    }
+
+    .sidebar-logo {
+      padding: 0 24px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sidebar-logo .claw-icon {
+      font-size: 28px; margin-bottom: 4px;
+    }
+    .sidebar-logo .brand {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: var(--accent);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .sidebar-logo .tagline {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .sidebar-nav {
+      flex: 1; overflow-y: auto;
+      padding: 20px 0;
+    }
+    .sidebar-nav::-webkit-scrollbar { width: 3px; }
+    .sidebar-nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .nav-section-label {
+      font-size: 10px;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      padding: 12px 24px 6px;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 24px;
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 13px;
+      transition: color .2s, background .2s;
+      border-left: 2px solid transparent;
+    }
+    .nav-item:hover {
+      color: var(--text-bright);
+      background: rgba(255,255,255,.03);
+    }
+    .nav-item.active {
+      color: var(--accent);
+      border-left-color: var(--accent);
+      background: rgba(232,192,96,.05);
+    }
+    .nav-item .step-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 20px; height: 20px; border-radius: 50%;
+      background: var(--border);
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      flex-shrink: 0;
+      transition: background .2s, color .2s;
+    }
+    .nav-item.active .step-num {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .sidebar-footer {
+      padding: 20px 24px 0;
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    /* ── MAIN CONTENT ── */
+    .main {
+      margin-left: 240px;
+      min-height: 100vh;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative;
+      padding: 80px 64px 64px;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -80px; right: -80px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(232,192,96,.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: '🦞';
+      position: absolute; right: 64px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 120px;
+      opacity: .08;
+      pointer-events: none;
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(-50%) rotate(-5deg); }
+      50% { transform: translateY(calc(-50% - 12px)) rotate(5deg); }
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid rgba(232,192,96,.3);
+      padding: 4px 12px; border-radius: 100px;
+      margin-bottom: 20px;
+      background: rgba(232,192,96,.05);
+    }
+    .hero-badge::before { content: '●'; font-size: 8px; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+    .hero h1 {
+      font-family: var(--serif);
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 700;
+      color: var(--text-bright);
+      line-height: 1.15;
+      margin-bottom: 16px;
+      max-width: 580px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--accent);
+      position: relative;
+    }
+    .hero h1 em::after {
+      content: '';
+      position: absolute; bottom: 2px; left: 0; right: 0;
+      height: 2px;
+      background: var(--accent);
+      opacity: .4;
+    }
+
+    .hero-desc {
+      max-width: 500px;
+      color: var(--text-dim);
+      font-size: 15px;
+      margin-bottom: 32px;
+    }
+
+    .hero-meta {
+      display: flex; gap: 24px; flex-wrap: wrap;
+      font-size: 12px; color: var(--text-dim);
+    }
+    .hero-meta span { display: flex; align-items: center; gap: 6px; }
+    .hero-meta span::before { content: '─'; color: var(--accent); }
+
+    /* ── STEPS CONTAINER ── */
+    .steps-container {
+      padding: 48px 64px;
+      max-width: 860px;
+    }
+
+    /* ── STEP CARD ── */
+    .step-card {
+      margin-bottom: 48px;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity .5s ease, transform .5s ease;
+    }
+    .step-card.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .step-header {
+      display: flex; align-items: center; gap: 16px;
+      margin-bottom: 24px;
+    }
+    .step-badge {
+      display: flex; align-items: center; justify-content: center;
+      width: 40px; height: 40px; border-radius: 10px;
+      font-family: var(--mono); font-size: 14px; font-weight: 600;
+      flex-shrink: 0;
+    }
+    .step-badge.s0 { background: rgba(94,196,255,.12); color: var(--accent2); }
+    .step-badge.s1 { background: rgba(232,192,96,.12); color: var(--accent); }
+    .step-badge.s2 { background: rgba(255,107,53,.12); color: var(--claw); }
+    .step-badge.s3 { background: rgba(94,196,255,.12); color: var(--accent2); }
+    .step-badge.s4 { background: rgba(232,192,96,.12); color: var(--accent); }
+    .step-badge.s5 { background: rgba(255,123,94,.12); color: var(--accent3); }
+    .step-badge.s6 { background: rgba(94,196,255,.12); color: var(--accent2); }
+
+    .step-title-group { flex: 1; }
+    .step-title-group h2 {
+      font-family: var(--serif);
+      font-size: 22px; font-weight: 700;
+      color: var(--text-bright);
+      line-height: 1.3;
+    }
+    .step-title-group .step-sub {
+      font-size: 12px; color: var(--text-dim);
+      font-family: var(--mono);
+      margin-top: 2px;
+    }
+
+    .step-body {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    /* ── CONTENT BLOCKS ── */
+    .block {
+      padding: 24px 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .block:last-child { border-bottom: none; }
+
+    .block-label {
+      font-family: var(--mono);
+      font-size: 10px; letter-spacing: .15em; text-transform: uppercase;
+      color: var(--text-dim); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .block-label::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    p { margin-bottom: 12px; color: var(--text); }
+    p:last-child { margin-bottom: 0; }
+
+    /* ── CODE BLOCK ── */
+    .code-block {
+      background: #090b10;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+    .code-block-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 16px;
+      background: rgba(255,255,255,.02);
+      border-bottom: 1px solid var(--border);
+    }
+    .code-lang {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .copy-btn {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: .08em; text-transform: uppercase;
+      color: var(--text-dim);
+      background: none; border: 1px solid var(--border);
+      padding: 3px 10px; border-radius: 4px;
+      cursor: pointer;
+      transition: color .2s, border-color .2s;
+    }
+    .copy-btn:hover { color: var(--accent); border-color: var(--accent); }
+    .copy-btn.copied { color: #5ecc7b; border-color: #5ecc7b; }
+
+    pre {
+      padding: 16px;
+      font-family: var(--mono);
+      font-size: 13px; line-height: 1.6;
+      color: #c9d1e6;
+      overflow-x: auto;
+    }
+    pre .kw { color: var(--accent2); }
+    pre .str { color: #a8d8a8; }
+    pre .comment { color: var(--text-dim); font-style: italic; }
+    pre .cmd { color: var(--accent); }
+    pre .flag { color: var(--accent3); }
+
+    /* ── CHECKLIST ── */
+    .checklist { list-style: none; }
+    .checklist li {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(255,255,255,.03);
+      font-size: 14px;
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .check-icon {
+      width: 18px; height: 18px;
+      border-radius: 4px;
+      border: 1.5px solid var(--border);
+      flex-shrink: 0; margin-top: 2px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px;
+      transition: all .2s;
+    }
+
+    /* ── CALLOUT ── */
+    .callout {
+      display: flex; gap: 12px;
+      padding: 14px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin: 12px 0;
+    }
+    .callout.warn {
+      background: rgba(255,123,94,.07);
+      border: 1px solid rgba(255,123,94,.2);
+      color: var(--text);
+    }
+    .callout.tip {
+      background: rgba(94,196,255,.07);
+      border: 1px solid rgba(94,196,255,.2);
+      color: var(--text);
+    }
+    .callout.success {
+      background: rgba(94,204,123,.07);
+      border: 1px solid rgba(94,204,123,.2);
+      color: var(--text);
+    }
+    .callout-icon { font-size: 16px; flex-shrink: 0; }
+
+    /* ── INLINE CODE ── */
+    code {
+      font-family: var(--mono); font-size: .88em;
+      background: rgba(255,255,255,.06);
+      border: 1px solid var(--border);
+      padding: 1px 6px; border-radius: 4px;
+      color: var(--accent2);
+    }
+
+    /* ── TABLE ── */
+    .cmd-table {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+    }
+    .cmd-table th {
+      text-align: left;
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--text-dim);
+      padding: 8px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .cmd-table td {
+      padding: 10px 16px;
+      border-bottom: 1px solid rgba(255,255,255,.03);
+      vertical-align: top;
+    }
+    .cmd-table tr:last-child td { border-bottom: none; }
+    .cmd-table tr:hover td { background: rgba(255,255,255,.02); }
+    .cmd-table .cmd-cell {
+      font-family: var(--mono); font-size: 12px;
+      color: var(--accent);
+    }
+    .cmd-table .desc-cell { color: var(--text-dim); }
+
+    /* ── PROGRESS STRIP ── */
+    .progress-strip {
+      position: fixed; top: 0; left: 240px; right: 0;
+      height: 2px; background: var(--border); z-index: 200;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--claw));
+      width: 0%; transition: width .1s;
+    }
+
+    /* ── MOBILE TOGGLE ── */
+    .menu-toggle {
+      display: none;
+      position: fixed; top: 16px; left: 16px;
+      z-index: 300;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text); padding: 8px 12px;
+      border-radius: 6px; cursor: pointer;
+      font-size: 16px;
+    }
+
+    /* ── SECTION DIVIDER ── */
+    .divider {
+      display: flex; align-items: center; gap: 16px;
+      margin: 48px 0 32px;
+      font-family: var(--mono); font-size: 11px;
+      letter-spacing: .12em; text-transform: uppercase;
+      color: var(--text-dim);
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    /* ── OPTION GRID ── */
+    .option-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    }
+    .option-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px; padding: 16px;
+      transition: border-color .2s;
+    }
+    .option-card:hover { border-color: rgba(232,192,96,.3); }
+    .option-card .opt-label {
+      font-family: var(--mono); font-size: 10px;
+      letter-spacing: .1em; text-transform: uppercase;
+      color: var(--text-dim); margin-bottom: 6px;
+    }
+    .option-card .opt-title {
+      font-weight: 600; font-size: 14px;
+      color: var(--text-bright); margin-bottom: 6px;
+    }
+    .option-card .opt-desc { font-size: 12px; color: var(--text-dim); }
+    .option-card.recommended { border-color: rgba(94,196,255,.3); }
+    .option-card.recommended .opt-label { color: var(--accent2); }
+
+    /* ── PERMISSION TAG ── */
+    .perm-tag {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-family: var(--mono); font-size: 11px;
+      background: rgba(94,204,123,.08);
+      border: 1px solid rgba(94,204,123,.2);
+      color: #5ecc7b;
+      padding: 2px 8px; border-radius: 4px;
+      margin: 2px;
+    }
+
+    /* ── STEP WIZARD ── */
+    .sub-step {
+      display: flex; gap: 14px;
+      margin-bottom: 16px;
+    }
+    .sub-step-num {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 11px;
+      color: var(--text-dim); flex-shrink: 0; margin-top: 1px;
+    }
+    .sub-step-content { flex: 1; }
+    .sub-step-content strong {
+      display: block; font-size: 13px;
+      color: var(--text-bright); margin-bottom: 4px;
+    }
+    .sub-step-content span { font-size: 13px; color: var(--text-dim); }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-left: 240px;
+      padding: 40px 64px;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 16px;
+      font-size: 12px; color: var(--text-dim);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ── AI CHAT ── */
+    .ai-chat-btn {
+      position: fixed; bottom: 32px; right: 32px;
+      background: var(--accent);
+      color: #000; border: none;
+      width: 52px; height: 52px; border-radius: 50%;
+      font-size: 22px; cursor: pointer;
+      box-shadow: 0 8px 32px rgba(232,192,96,.3);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform .2s, box-shadow .2s;
+      z-index: 500;
+    }
+    .ai-chat-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 12px 40px rgba(232,192,96,.5);
+    }
+
+    .chat-panel {
+      position: fixed; bottom: 96px; right: 32px;
+      width: 360px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 24px 60px rgba(0,0,0,.6);
+      display: none; flex-direction: column;
+      overflow: hidden; z-index: 500;
+      max-height: 500px;
+    }
+    .chat-panel.open { display: flex; animation: slideUp .25s ease; }
+    @keyframes slideUp {
+      from { opacity:0; transform: translateY(12px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    .chat-header {
+      padding: 14px 18px;
+      background: rgba(255,255,255,.03);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .chat-header-title {
+      font-size: 13px; font-weight: 600;
+      color: var(--text-bright);
+      display: flex; align-items: center; gap: 8px;
+    }
+    .chat-header-title::before {
+      content: '';
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #5ecc7b;
+      animation: pulse 2s infinite;
+    }
+    .chat-close {
+      background: none; border: none; color: var(--text-dim);
+      cursor: pointer; font-size: 16px;
+      transition: color .2s;
+    }
+    .chat-close:hover { color: var(--text-bright); }
+
+    .chat-messages {
+      flex: 1; overflow-y: auto;
+      padding: 16px; display: flex; flex-direction: column; gap: 10px;
+      max-height: 320px;
+    }
+    .chat-messages::-webkit-scrollbar { width: 3px; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--border); }
+
+    .msg {
+      max-width: 85%; padding: 10px 13px;
+      border-radius: 12px; font-size: 13px; line-height: 1.5;
+    }
+    .msg.bot {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+    .msg.user {
+      background: rgba(232,192,96,.12);
+      border: 1px solid rgba(232,192,96,.2);
+      color: var(--text-bright);
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    .msg.loading { opacity: .6; }
+
+    .chat-input-row {
+      display: flex; gap: 8px;
+      padding: 12px;
+      border-top: 1px solid var(--border);
+    }
+    .chat-input {
+      flex: 1;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 9px 13px;
+      color: var(--text); font-family: var(--sans); font-size: 13px;
+      outline: none; transition: border-color .2s;
+    }
+    .chat-input:focus { border-color: var(--accent); }
+    .chat-input::placeholder { color: var(--text-dim); }
+    .chat-send {
+      background: var(--accent); color: #000;
+      border: none; border-radius: 8px;
+      padding: 0 16px; font-size: 14px;
+      cursor: pointer; transition: opacity .2s;
+      flex-shrink: 0;
+    }
+    .chat-send:hover { opacity: .85; }
+    .chat-send:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main, footer { margin-left: 0; }
+      .progress-strip { left: 0; }
+      .menu-toggle { display: block; }
+      .hero { padding: 64px 24px 40px; }
+      .hero::after { display: none; }
+      .steps-container { padding: 32px 24px; }
+      footer { padding: 32px 24px; }
+      .option-grid { grid-template-columns: 1fr; }
+      .chat-panel { right: 16px; left: 16px; width: auto; }
+      .ai-chat-btn { bottom: 24px; right: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Progress -->
+<div class="progress-strip"><div class="progress-fill" id="progressFill"></div></div>
+
+<!-- Mobile Toggle -->
+<button class="menu-toggle" onclick="toggleSidebar()" aria-label="菜单">☰</button>
+
+<!-- Sidebar -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="claw-icon">🦞</div>
+    <div class="brand">OpenClaw</div>
+    <div class="tagline">Windows 安装完全指南</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-section-label">准备工作</div>
+    <a class="nav-item" href="#step-0">
+      <span class="step-num">00</span>必读指南
+    </a>
+    <div class="nav-section-label">安装步骤</div>
+    <a class="nav-item" href="#step-1">
+      <span class="step-num">01</span>安装 Node.js & Git
+    </a>
+    <a class="nav-item" href="#step-2">
+      <span class="step-num">02</span>配置国内镜像源
+    </a>
+    <a class="nav-item" href="#step-3">
+      <span class="step-num">03</span>安装 OpenClaw 核心
+    </a>
+    <a class="nav-item" href="#step-4">
+      <span class="step-num">04</span>配置飞书机器人
+    </a>
+    <div class="nav-section-label">参考资料</div>
+    <a class="nav-item" href="#step-5">
+      <span class="step-num">05</span>常见问题排查
+    </a>
+    <a class="nav-item" href="#step-6">
+      <span class="step-num">06</span>命令速查表
+    </a>
+  </div>
+  <div class="sidebar-footer">
+    参考 B站 ValleyAI 教程 &amp; 阿里云开发者社区
+  </div>
+</nav>
+
+<!-- Main -->
+<main class="main">
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-badge">完全指南 · 零基础版</div>
+    <h1>OpenClaw<br/>本地安装 + <em>飞书对接</em></h1>
+    <p>天津财经大学统计学院教授  龚凤乾</p>
+    <p class="hero-desc">面向 Windows 零基础用户的完整教程，从环境安装到机器人上线，一步一步跟着做就能成功。</p>
+    <div class="hero-meta">
+      <span>Windows 10 / 11</span>
+      <span>约 45 分钟完成</span>
+      <span>共 6 个步骤</span>
+    </div>
+  </section>
+
+  <!-- Steps -->
+  <div class="steps-container">
+
+    <!-- STEP 0 -->
+    <article class="step-card" id="step-0">
+      <div class="step-header">
+        <div class="step-badge s0">00</div>
+        <div class="step-title-group">
+          <h2>必读指南</h2>
+          <div class="step-sub">开始之前请先阅读</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="block">
+          <div class="block-label">文档结构</div>
+          <p>本安装包包含 6 个核心教程，请按编号顺序执行：</p>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;">
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;font-family:var(--mono);font-size:12px;">
+              <div style="color:var(--accent);font-size:18px;margin-bottom:4px;">01</div>
+              <div style="color:var(--text-dim);">Node.js & Git</div>
+            </div>
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;font-family:var(--mono);font-size:12px;">
+              <div style="color:var(--accent);font-size:18px;margin-bottom:4px;">02</div>
+              <div style="color:var(--text-dim);">配置镜像源</div>
+            </div>
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;font-family:var(--mono);font-size:12px;">
+              <div style="color:var(--claw);font-size:18px;margin-bottom:4px;">03</div>
+              <div style="color:var(--text-dim);">安装核心</div>
+            </div>
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;font-family:var(--mono);font-size:12px;">
+              <div style="color:var(--accent2);font-size:18px;margin-bottom:4px;">04</div>
+              <div style="color:var(--text-dim);">配置飞书</div>
+            </div>
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;font-family:var(--mono);font-size:12px;">
+              <div style="color:var(--accent3);font-size:18px;margin-bottom:4px;">05</div>
+              <div style="color:var(--text-dim);">问题排查</div>
+            </div>
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center;font-family:var(--mono);font-size:12px;">
+              <div style="color:var(--accent2);font-size:18px;margin-bottom:4px;">06</div>
+              <div style="color:var(--text-dim);">命令速查</div>
+            </div>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-label">注意事项</div>
+          <ul class="checklist">
+            <li><span class="check-icon">✦</span>所有命令均在 Windows PowerShell 中执行（Win + R → 输入 <code>powershell</code>）</li>
+            <li><span class="check-icon">✦</span>遇到任何报错不要慌，先查阅步骤 05 常见问题</li>
+            <li><span class="check-icon">✦</span>建议全程保持网络通畅，部分下载可能需要科学上网</li>
+          </ul>
+        </div>
+        <div class="block">
+          <div class="callout tip">
+            <span class="callout-icon">💡</span>
+            <span>本教程参考了 B站 ValleyAI 的 OpenClaw 14天教程以及阿里云开发者社区的最新实测经验。</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- STEP 1 -->
+    <article class="step-card" id="step-1">
+      <div class="step-header">
+        <div class="step-badge s1">01</div>
+        <div class="step-title-group">
+          <h2>安装 Node.js 和 Git</h2>
+          <div class="step-sub">环境准备 · 预计 15 分钟</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="block">
+          <div class="block-label">1.1 下载 Node.js（必须安装 LTS 版本）</div>
+          <p>访问官网下载最新 LTS 版本（如 20.x.x 或 22.x.x）：</p>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">链接</span>
+            </div>
+            <pre>https://nodejs.org/zh-cn/download/</pre>
+          </div>
+          <p style="margin-top:8px;font-size:13px;color:var(--text-dim);">文件名类似：<code>node-v20.x.x-x64.msi</code></p>
+        </div>
+        <div class="block">
+          <div class="block-label">1.2 安装 Node.js</div>
+          <div class="sub-step">
+            <div class="sub-step-num">1</div>
+            <div class="sub-step-content"><strong>双击下载的 .msi 文件</strong></div>
+          </div>
+          <div class="sub-step">
+            <div class="sub-step-num">2</div>
+            <div class="sub-step-content"><strong>一路点击 Next（下一步）</strong><span>⚠️ 保持所有默认选项不变！</span></div>
+          </div>
+          <div class="sub-step">
+            <div class="sub-step-num">3</div>
+            <div class="sub-step-content"><strong>点击 Install → 完成后点击 Finish</strong></div>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-label">1.3 验证 Node.js 安装</div>
+          <p>打开 PowerShell，输入以下命令：</p>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">PowerShell</span>
+              <button class="copy-btn" onclick="copyCode(this, 'node -v')">复制</button>
+            </div>
+            <pre><span class="cmd">node -v</span></pre>
+          </div>
+          <div class="callout success">
+            <span class="callout-icon">✅</span>
+            <span>看到类似 <code>v20.11.1</code> 的版本号，说明安装成功。</span>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-label">1.4 下载并安装 Git</div>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">链接</span>
+            </div>
+            <pre>https://git-scm.com/download/win</pre>
+          </div>
+          <div class="callout warn">
+            <span class="callout-icon">⚠️</span>
+            <span>安装时务必确保勾选 <strong>"Git Bash Here"</strong> 和 <strong>"Add Git to PATH"</strong></span>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-label">1.5 验证 Git 安装</div>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">PowerShell</span>
+              <button class="copy-btn" onclick="copyCode(this, 'git --version')">复制</button>
+            </div>
+            <pre><span class="cmd">git --version</span></pre>
+          </div>
+          <div class="callout success">
+            <span class="callout-icon">✅</span>
+            <span>完成标志：Node.js 和 Git 都已安装成功，版本号均可正常显示。</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- STEP 2 -->
+    <article class="step-card" id="step-2">
+      <div class="step-header">
+        <div class="step-badge s2">02</div>
+        <div class="step-title-group">
+          <h2>配置国内镜像源</h2>
+          <div class="step-sub">下载加速 · 预计 3 分钟</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="block">
+          <div class="block-label">为什么要配置？</div>
+          <p>npm 默认服务器在国外，下载速度很慢。配置为淘宝镜像源后，下载速度会快很多。</p>
+        </div>
+        <div class="block">
+          <div class="block-label">2.1 打开 PowerShell（管理员）</div>
+          <p>按 <code>Win + R</code>，输入 <code>powershell</code>，右键点击标题栏选择「以管理员身份运行」（推荐）。</p>
+        </div>
+        <div class="block">
+          <div class="block-label">2.2 执行配置命令</div>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">PowerShell</span>
+              <button class="copy-btn" onclick="copyCode(this, 'npm config set registry https://registry.npmmirror.com/')">复制</button>
+            </div>
+            <pre><span class="cmd">npm config set registry</span> <span class="str">https://registry.npmmirror.com/</span></pre>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-label">2.3 验证配置是否成功</div>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">PowerShell</span>
+              <button class="copy-btn" onclick="copyCode(this, 'npm config get registry')">复制</button>
+            </div>
+            <pre><span class="cmd">npm config get registry</span></pre>
+          </div>
+          <div class="callout success">
+            <span class="callout-icon">✅</span>
+            <span>返回 <code>https://registry.npmmirror.com/</code> 说明配置成功！</span>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-label">2.4 可选：配置 Python 编译环境</div>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">PowerShell</span>
+              <button class="copy-btn" onclick="copyCode(this, 'npm install --global windows-build-tools')">复制</button>
+            </div>
+            <pre><span class="cmd">npm install</span> <span class="flag">--global</span> windows-build-tools</pre>
+          </div>
+          <div class="callout warn">
+            <span class="callout-icon">⏳</span>
+            <span>这一步可能需要 10–20 分钟，耐心等待即可。</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- STEP 3 -->
+    <article class="step-card" id="step-3">
+      <div class="step-header">
+        <div class="step-badge s3">03</div>
+        <div class="step-title-group">
+          <h2>安装 OpenClaw 核心</h2>
+          <div class="step-sub">核心安装 · 预计 10 分钟</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="block">
+          <div class="block-label">3.1 执行一键安装命令</div>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">PowerShell</span>
+              <button class="copy-btn" onclick="copyCode(this, 'npm install -g openclaw@latest')">复制</button>
+            </div>
+            <pre><span class="cmd">npm install</span> <span class="flag">-g</span> openclaw@latest</pre>
+          </div>
+          <p style="margin-top:8px;font-size:13px;color:var(--text-dim);">等待时间约 3–10 分钟，出现 <code>openclaw@x.x.x</code> 字样即表示安装完成。</p>
+        </div>
+        <div class="block">
+          <div class="block-label">3.2 启动配置向导</div>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">PowerShell</span>
+              <button class="copy-btn" onclick="copyCode(this, 'openclaw onboard --install-daemon')">复制</button>
+            </div>
+            <pre><span class="cmd">openclaw onboard</span> <span class="flag">--install-daemon</span></pre>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-label">3.3 跟随向导完成配置</div>
+          <div class="sub-step">
+            <div class="sub-step-num">1</div>
+            <div class="sub-step-content"><strong>风险提示</strong><span>方向键选择「Yes」→ 回车确认</span></div>
+          </div>
+          <div class="sub-step">
+            <div class="sub-step-num">2</div>
+            <div class="sub-step-content"><strong>配置模式</strong><span>选择「QuickStart」→ 回车确认</span></div>
+          </div>
+          <div class="sub-step">
+            <div class="sub-step-num">3</div>
+            <div class="sub-step-content"><strong>选择模型服务商</strong></div>
+          </div>
+          <div class="option-grid" style="margin-left:38px;margin-top:8px;margin-bottom:12px;">
+            <div class="option-card">
+              <div class="opt-label">选项 A</div>
+              <div class="opt-title">DeepSeek</div>
+              <div class="opt-desc">需申请 API Key，后续输入即可</div>
+            </div>
+            <div class="option-card recommended">
+              <div class="opt-label">选项 B · 推荐新手</div>
+              <div class="opt-title">通义千问（Qwen OAuth）</div>
+              <div class="opt-desc">免费额度大，用支付宝/淘宝账号授权即可</div>
+            </div>
+          </div>
+          <div class="sub-step">
+            <div class="sub-step-num">4</div>
+            <div class="sub-step-content"><strong>通信渠道</strong><span>选择「Skip for now」（飞书稍后单独配置）</span></div>
+          </div>
+          <div class="sub-step">
+            <div class="sub-step-num">5</div>
+            <div class="sub-step-content"><strong>Skills 与 Hooks</strong><span>选择「Yes」安装推荐套件</span></div>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-label">3.4 验证安装是否成功</div>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">PowerShell</span>
+              <button class="copy-btn" onclick="copyCode(this, 'openclaw status')">复制</button>
+            </div>
+            <pre><span class="cmd">openclaw status</span></pre>
+          </div>
+          <div class="callout success">
+            <span class="callout-icon">✅</span>
+            <span>显示 <code>Gateway is running</code> 说明 OpenClaw 已成功运行！</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- STEP 4 -->
+    <article class="step-card" id="step-4">
+      <div class="step-header">
+        <div class="step-badge s4">04</div>
+        <div class="step-title-group">
+          <h2>配置飞书机器人</h2>
+          <div class="step-sub">飞书对接 · 预计 15 分钟</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="block">
+          <div class="block-label">4.1 安装飞书插件</div>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">PowerShell</span>
+              <button class="copy-btn" onclick="copyCode(this, 'openclaw plugins install @overlink/openclaw-feishu')">复制</button>
+            </div>
+            <pre><span class="cmd">openclaw plugins install</span> @overlink/openclaw-feishu</pre>
+          </div>
+          <div class="callout warn">
+            <span class="callout-icon">⚠️</span>
+            <div>
+              <strong style="display:block;margin-bottom:6px;">安装失败备用方案：</strong>
+              <p>1. 浏览器下载插件：<code>https://registry.npmjs.org/@overlink/openclaw-feishu/-/openclaw-feishu-0.1.10.tgz</code></p>
+              <p>2. 将文件移至 <code>C:\Users\你的用户名\</code></p>
+              <p>3. 执行：<code>openclaw plugins install ./openclaw-feishu-0.1.10.tgz</code></p>
+            </div>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-label">4.2 在飞书开放平台创建机器人</div>
+          <div class="sub-step">
+            <div class="sub-step-num">1</div>
+            <div class="sub-step-content"><strong>打开飞书开放平台</strong><span><a href="https://open.feishu.cn/app" target="_blank" style="color:var(--accent2);">https://open.feishu.cn/app</a></span></div>
+          </div>
+          <div class="sub-step">
+            <div class="sub-step-num">2</div>
+            <div class="sub-step-content"><strong>点击「创建企业自建应用」</strong><span>输入应用名称（例如：我的AI助理）→ 点击「创建」</span></div>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-label">4.3 获取应用凭证</div>
+          <p>在左侧菜单点击「凭证与基础信息」，找到并复制以下两项：</p>
+          <div style="display:flex;gap:12px;margin-top:12px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:160px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;">
+              <div style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--text-dim);margin-bottom:6px;">APP ID</div>
+              <div style="font-family:var(--mono);font-size:12px;color:var(--accent);">cli_xxxxxxxxx</div>
+            </div>
+            <div style="flex:1;min-width:160px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:14px;">
+              <div style="font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--text-dim);margin-bottom:6px;">APP SECRET</div>
+              <div style="font-family:var(--mono);font-size:12px;color:var(--accent);">一串密钥字符</div>
+            </div>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-label">4.4 配置机器人能力</div>
+          <p>左侧菜单 → 「添加应用能力」→ 选择「机器人」→ 确认添加</p>
+        </div>
+        <div class="block">
+          <div class="block-label">4.5 配置权限</div>
+          <p>左侧「权限管理」→ 搜索并开启以下权限：</p>
+          <div style="margin-top:10px;">
+            <span class="perm-tag">✔ im:message</span>
+            <span class="perm-tag">✔ im:message:send_as_bot</span>
+            <span class="perm-tag">✔ im:message.p2p_msg:readonly</span>
+            <span class="perm-tag">✔ im:message.group_at_msg:readonly</span>
+            <span class="perm-tag">✔ im:resource</span>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-label">4.6 配置事件订阅</div>
+          <div class="sub-step">
+            <div class="sub-step-num">1</div>
+            <div class="sub-step-content"><strong>点击左侧「事件与回调」</strong></div>
+          </div>
+          <div class="sub-step">
+            <div class="sub-step-num">2</div>
+            <div class="sub-step-content"><strong>事件配置方式 → 选择「长连接」</strong></div>
+          </div>
+          <div class="sub-step">
+            <div class="sub-step-num">3</div>
+            <div class="sub-step-content"><strong>添加事件</strong><span>搜索「接收消息」→ 勾选「接收消息 v2.0」→ 确认</span></div>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-label">4.7 将飞书和 OpenClaw 连接</div>
+          <p style="margin-bottom:12px;">回到 PowerShell，逐条执行（替换为你自己的值）：</p>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">PowerShell</span>
+              <button class="copy-btn" onclick="copyCode(this, `openclaw config set channels.openclaw-feishu.domain \"feishu\"\nopenclaw config set channels.openclaw-feishu.appId \"cli_xxxxx\"\nopenclaw config set channels.openclaw-feishu.appSecret \"你的App Secret\"\nopenclaw config set channels.openclaw-feishu.enabled true\nopenclaw gateway restart`)">复制全部</button>
+            </div>
+            <pre><span class="comment"># 启用飞书插件（国内版）</span>
+<span class="cmd">openclaw config set</span> channels.openclaw-feishu.domain <span class="str">"feishu"</span>
+
+<span class="comment"># 填入 App ID</span>
+<span class="cmd">openclaw config set</span> channels.openclaw-feishu.appId <span class="str">"cli_xxxxx"</span>
+
+<span class="comment"># 填入 App Secret</span>
+<span class="cmd">openclaw config set</span> channels.openclaw-feishu.appSecret <span class="str">"你的App Secret"</span>
+
+<span class="comment"># 启用频道</span>
+<span class="cmd">openclaw config set</span> channels.openclaw-feishu.enabled <span class="kw">true</span>
+
+<span class="comment"># 重启网关使配置生效</span>
+<span class="cmd">openclaw gateway restart</span></pre>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-label">4.8 测试机器人</div>
+          <div class="sub-step">
+            <div class="sub-step-num">1</div>
+            <div class="sub-step-content"><strong>打开飞书客户端</strong></div>
+          </div>
+          <div class="sub-step">
+            <div class="sub-step-num">2</div>
+            <div class="sub-step-content"><strong>搜索你的应用名称</strong><span>如：我的AI助理</span></div>
+          </div>
+          <div class="sub-step">
+            <div class="sub-step-num">3</div>
+            <div class="sub-step-content"><strong>发送「你好」</strong><span>等待机器人回复</span></div>
+          </div>
+          <div class="callout success" style="margin-top:12px;">
+            <span class="callout-icon">✅</span>
+            <span>收到回复，恭喜你！飞书机器人配置成功！</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- STEP 5 -->
+    <article class="step-card" id="step-5">
+      <div class="step-header">
+        <div class="step-badge s5">05</div>
+        <div class="step-title-group">
+          <h2>常见问题排查</h2>
+          <div class="step-sub">遇到问题先看这里</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="block">
+          <div class="block-label">问题 1 · 飞书机器人能发消息，但收不到我的消息</div>
+          <p><strong style="color:var(--accent3);">原因：</strong>90% 是忘记配置「事件订阅」</p>
+          <p style="margin-top:6px;"><strong>解决：</strong>飞书开放平台 → 「事件与回调」→ 确认已添加「接收消息 v2.0」事件，且事件配置方式选择了「长连接」→ 保存</p>
+        </div>
+        <div class="block">
+          <div class="block-label">问题 2 · 安装插件时报错：spawn npm ENOENT</div>
+          <p><strong style="color:var(--accent3);">原因：</strong>Node.js 未正确添加到系统路径</p>
+          <p style="margin-top:6px;"><strong>解决：</strong>重启电脑；若仍不行，卸载 Node.js 后重装，务必保持所有默认选项</p>
+        </div>
+        <div class="block">
+          <div class="block-label">问题 3 · npm install 卡住不动或下载慢</div>
+          <p><strong style="color:var(--accent3);">原因：</strong>网络问题</p>
+          <div class="code-block" style="margin-top:8px;">
+            <div class="code-block-header">
+              <span class="code-lang">PowerShell</span>
+              <button class="copy-btn" onclick="copyCode(this, 'npm install -g openclaw@latest --verbose')">复制</button>
+            </div>
+            <pre><span class="cmd">npm install</span> <span class="flag">-g</span> openclaw@latest <span class="flag">--verbose</span></pre>
+          </div>
+          <p style="margin-top:8px;font-size:13px;color:var(--text-dim);">先确认已配置淘宝镜像源，<code>--verbose</code> 可查看卡在哪一步。</p>
+        </div>
+        <div class="block">
+          <div class="block-label">问题 4 · openclaw status 显示 Gateway is not running</div>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">PowerShell</span>
+              <button class="copy-btn" onclick="copyCode(this, 'openclaw gateway start\nopenclaw status')">复制</button>
+            </div>
+            <pre><span class="cmd">openclaw gateway start</span>
+<span class="comment"># 等待几秒后</span>
+<span class="cmd">openclaw status</span></pre>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-label">问题 5 · 飞书机器人回复乱码或「不明白」</div>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">PowerShell</span>
+              <button class="copy-btn" onclick="copyCode(this, 'openclaw config get llm\nopenclaw onboard')">复制</button>
+            </div>
+            <pre><span class="cmd">openclaw config get</span> llm
+<span class="comment"># 如有问题，重新运行配置向导</span>
+<span class="cmd">openclaw onboard</span></pre>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-label">问题 6 · 电脑内存不足，启动失败</div>
+          <p>OpenClaw 启动需要约 4GB 内存。关闭浏览器标签页、微信等程序释放内存，或考虑使用云服务器部署。</p>
+        </div>
+        <div class="block">
+          <div class="block-label">问题 7 · 执行命令提示「不是内部或外部命令」</div>
+          <p>环境变量未配置。重启电脑；若仍不行，卸载 Node.js 后重装。</p>
+        </div>
+        <div class="block">
+          <div class="block-label">终极排查工具</div>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">PowerShell</span>
+              <button class="copy-btn" onclick="copyCode(this, 'openclaw doctor')">复制</button>
+            </div>
+            <pre><span class="cmd">openclaw doctor</span></pre>
+          </div>
+          <p style="margin-top:8px;font-size:13px;color:var(--text-dim);">自动检测常见问题并给出建议。</p>
+          <div class="callout tip" style="margin-top:12px;">
+            <span class="callout-icon">🙋</span>
+            <span>仍无法解决？可在 B站 ValleyAI 视频下方留言，或加入 OpenClaw 用户交流群（见视频简介）。</span>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- STEP 6 -->
+    <article class="step-card" id="step-6">
+      <div class="step-header">
+        <div class="step-badge s6">06</div>
+        <div class="step-title-group">
+          <h2>常用命令速查表</h2>
+          <div class="step-sub">随查随用</div>
+        </div>
+      </div>
+      <div class="step-body">
+        <div class="block">
+          <div class="block-label">状态查看</div>
+          <table class="cmd-table">
+            <thead><tr><th>命令</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td class="cmd-cell">openclaw status</td><td class="desc-cell">查看运行状态</td></tr>
+              <tr><td class="cmd-cell">openclaw config list</td><td class="desc-cell">查看所有配置</td></tr>
+              <tr><td class="cmd-cell">openclaw plugins list</td><td class="desc-cell">查看插件列表</td></tr>
+              <tr><td class="cmd-cell">openclaw doctor</td><td class="desc-cell">查看系统环境 & 诊断</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="block">
+          <div class="block-label">启动 / 停止</div>
+          <table class="cmd-table">
+            <thead><tr><th>命令</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td class="cmd-cell">openclaw gateway start</td><td class="desc-cell">启动网关</td></tr>
+              <tr><td class="cmd-cell">openclaw gateway stop</td><td class="desc-cell">停止网关</td></tr>
+              <tr><td class="cmd-cell">openclaw gateway restart</td><td class="desc-cell">重启网关</td></tr>
+              <tr><td class="cmd-cell">openclaw restart</td><td class="desc-cell">重启所有服务</td></tr>
+              <tr><td class="cmd-cell">openclaw stop</td><td class="desc-cell">完全停止所有服务</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="block">
+          <div class="block-label">配置管理</div>
+          <table class="cmd-table">
+            <thead><tr><th>命令</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td class="cmd-cell">openclaw dashboard</td><td class="desc-cell">打开网页控制台</td></tr>
+              <tr><td class="cmd-cell">openclaw config get channels</td><td class="desc-cell">查看飞书配置</td></tr>
+              <tr><td class="cmd-cell">openclaw config set channels.openclaw-feishu.enabled true</td><td class="desc-cell">启用飞书频道</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="block">
+          <div class="block-label">插件管理</div>
+          <table class="cmd-table">
+            <thead><tr><th>命令</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td class="cmd-cell">openclaw plugins install &lt;插件名&gt;</td><td class="desc-cell">安装插件</td></tr>
+              <tr><td class="cmd-cell">openclaw plugins uninstall &lt;插件名&gt;</td><td class="desc-cell">卸载插件</td></tr>
+              <tr><td class="cmd-cell">openclaw plugins update</td><td class="desc-cell">更新所有插件</td></tr>
+              <tr><td class="cmd-cell">npm update -g openclaw</td><td class="desc-cell">更新 OpenClaw 本体</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="block">
+          <div class="block-label">日志查看</div>
+          <table class="cmd-table">
+            <thead><tr><th>命令</th><th>说明</th></tr></thead>
+            <tbody>
+              <tr><td class="cmd-cell">openclaw logs</td><td class="desc-cell">查看实时日志</td></tr>
+              <tr><td class="cmd-cell">openclaw logs --error</td><td class="desc-cell">只看错误日志</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </article>
+
+  </div><!-- /steps-container -->
+</main>
+
+<!-- Footer -->
+<footer>
+  <div>OpenClaw 安装指南 · 面向零基础 Windows 用户</div>
+  <div>
+    参考：<a href="https://space.bilibili.com/" target="_blank">B站 ValleyAI</a> ·
+    <a href="https://developer.aliyun.com/" target="_blank">阿里云开发者社区</a>
+  </div>
+</footer>
+
+<!-- AI Chat -->
+<button class="ai-chat-btn" onclick="toggleChat()" title="AI 助手">🦞</button>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header">
+    <div class="chat-header-title">AI 安装助手</div>
+    <button class="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="msg bot">你好！我是 OpenClaw 安装助手。遇到安装问题？告诉我，我来帮你解决 🦞</div>
+  </div>
+  <div class="chat-input-row">
+    <input class="chat-input" id="chatInput" placeholder="输入你的问题…" onkeydown="if(event.key==='Enter')sendChat()" />
+    <button class="chat-send" id="chatSend" onclick="sendChat()">↑</button>
+  </div>
+</div>
+
+<script>
+// ── PROGRESS ──
+window.addEventListener('scroll', () => {
+  const h = document.documentElement;
+  const pct = (h.scrollTop / (h.scrollHeight - h.clientHeight)) * 100;
+  document.getElementById('progressFill').style.width = pct + '%';
+});
+
+// ── INTERSECTION OBSERVER ──
+const cards = document.querySelectorAll('.step-card');
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08 });
+cards.forEach(c => obs.observe(c));
+
+// ── ACTIVE NAV ──
+const navItems = document.querySelectorAll('.nav-item');
+const sectionObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navItems.forEach(n => n.classList.remove('active'));
+      const active = document.querySelector(`.nav-item[href="#${e.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { threshold: 0.3 });
+document.querySelectorAll('.step-card[id]').forEach(s => sectionObs.observe(s));
+
+// ── COPY CODE ──
+function copyCode(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '已复制';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '复制'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// ── MOBILE SIDEBAR ──
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+}
+
+// ── AI CHAT ──
+function toggleChat() {
+  document.getElementById('chatPanel').classList.toggle('open');
+}
+
+async function sendChat() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  const msgs = document.getElementById('chatMessages');
+  const send = document.getElementById('chatSend');
+
+  // Add user message
+  msgs.innerHTML += `<div class="msg user">${escHtml(msg)}</div>`;
+  input.value = '';
+  send.disabled = true;
+  msgs.scrollTop = msgs.scrollHeight;
+
+  // Loading
+  const loadId = 'load-' + Date.now();
+  msgs.innerHTML += `<div class="msg bot loading" id="${loadId}">正在思考…</div>`;
+  msgs.scrollTop = msgs.scrollHeight;
+
+  try {
+    const res = await fetch('/.netlify/functions/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg })
+    });
+    const data = await res.json();
+    const reply = data.reply || '抱歉，出现了一点问题，请稍后再试。';
+    document.getElementById(loadId).textContent = reply;
+    document.getElementById(loadId).classList.remove('loading');
+  } catch (e) {
+    document.getElementById(loadId).textContent = '网络错误，请检查连接后重试。';
+    document.getElementById(loadId).classList.remove('loading');
+  }
+
+  send.disabled = false;
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>

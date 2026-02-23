@@ -1,0 +1,19 @@
+{
+  "name": "openclaw-install-guide",
+  "version": "1.0.0",
+  "description": "OpenClaw 本地安装 + 飞书对接完全指南（Windows 零基础版）",
+  "private": true,
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo 'Static site - no build step required'"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.27.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
